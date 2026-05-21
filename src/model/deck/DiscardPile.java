@@ -3,6 +3,7 @@ package model.deck;
 import lombok.*;
 import model.card.Card;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -11,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 public class DiscardPile {
-    private List<Card> discardedCards;
+    private List<Card> discardedCards = new ArrayList<>();
 }
