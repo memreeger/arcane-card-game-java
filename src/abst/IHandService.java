@@ -14,7 +14,7 @@ public interface IHandService {
 
     void addCards(Hand hand, Deck deck, int count);
 
-    void removeCard(Hand hand,int cardIndex);
+    Card removeCard(Hand hand,int cardIndex);
 
     void showHand(Hand hand);
 }
