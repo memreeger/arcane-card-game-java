@@ -16,8 +16,10 @@ public class SpecialCard extends Card {
     private SpecialCardType specialCardType;
 
     public SpecialCard(DeckType deckType, SpecialCardType specialCardType) {
-        super(deckType);
-        this.specialCardType = specialCardType;
+        super(deckType, CardType.SPECIAL);
+        this.name = specialCardType.getName();
         this.description = specialCardType.getDescription();
+        this.used = false;
+        this.specialCardType = specialCardType;
     }
 }
