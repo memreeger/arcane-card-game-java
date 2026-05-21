@@ -1,11 +1,13 @@
-package services.hand;
+package services.handService;
 
 import abst.IDeckDraw;
+import abst.IDiscardPileService;
 import abst.IHandService;
 import model.card.Card;
 import model.deck.Deck;
 import model.hand.Hand;
-import services.deck.manipulate.DeckService;
+import services.deckService.manipulate.DeckService;
+import services.discardPileService.DiscardPileService;
 
 import java.util.List;
 
@@ -26,6 +28,7 @@ public class HandService implements IHandService {
 
 
     IDeckDraw deckDraw = DeckService.getInstance();
+    IDiscardPileService discardPileService = DiscardPileService.getInstance();
 
 
     @Override
@@ -50,19 +53,22 @@ public class HandService implements IHandService {
     }
 
     @Override
-    public void removeCard(Hand hand, int cardIndex) {
+    public Card removeCard(Hand hand, int cardIndex) {
         //Elden attığını elden çıkart
         //DiscardPile'a ekleme yap
         if (cardIndex < 0 || cardIndex >= hand.getCards().size()) {
             throw new IllegalArgumentException("Invalid card index.");
         }
+        //Card removedCard = hand.getCards().get(cardIndex);
+        //discardPileService.addCardByCard(removedCard);
 
-        hand.getCards().remove(cardIndex);
+        return hand.getCards().remove(cardIndex);
     }
 
     @Override
     public void showHand(Hand hand) {
-        for (int i = 0; i < hand.getCards().size(); i++) {
+        int handListSize = hand.getCards().size();
+        for (int i = 0; i < handListSize; i++) {
             System.out.println((i + 1) + ") " + hand.getCards().get(i));
         }
     }

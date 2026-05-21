@@ -1,4 +1,4 @@
-package services.deck.create;
+package services.deckService.create;
 
 import abst.IDeckCreator;
 import enums.CardType;

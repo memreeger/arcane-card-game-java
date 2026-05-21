@@ -1,8 +1,7 @@
-package services.deck.manipulate;
+package services.deckService.manipulate;
 
 import abst.IDeckDraw;
 import abst.IDeckShuffle;
-import lombok.*;
 import model.card.Card;
 import model.deck.Deck;
 
@@ -38,12 +37,12 @@ public class DeckService implements IDeckDraw, IDeckShuffle {
             throw new IllegalStateException("Deck is empty.");
         }
 
-        return deck.getCards().removeFirst();
+        return deck.getCards().remove(0);
     }
 
     @Override
     public List<Card> drawCards(Deck deck, int count) {
-        if(count < 0 || count > 5){
+        if (count < 0 || count > 5) {
             throw new IllegalArgumentException("Enter a number between 0-5");
         }
 

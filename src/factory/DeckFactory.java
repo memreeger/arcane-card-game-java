@@ -2,9 +2,9 @@ package factory;
 
 import abst.IDeckCreator;
 import enums.DeckType;
-import services.deck.create.AlchemySetDeckCreator;
-import services.deck.create.ElementSetDeckCreator;
-import services.deck.create.QuantumSetDeckCreator;
+import services.deckService.create.AlchemySetDeckCreator;
+import services.deckService.create.ElementSetDeckCreator;
+import services.deckService.create.QuantumSetDeckCreator;
 
 public class DeckFactory {
     public static IDeckCreator createDeck(DeckType type) {
