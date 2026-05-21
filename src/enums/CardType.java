@@ -6,7 +6,8 @@ public enum CardType {
 
     FIRE, WATER, EARTH, AIR, // ALCHEMY SET
     HYDROGEN, OXYGEN, NITROGEN, CARBON_DIOXIDE, // Element SET
-    QUARK, BOSON, GLUON, PHOTON; // QUANTUM SET
+    QUARK, BOSON, GLUON, PHOTON,// QUANTUM SET
+    SPECIAL;
 
     public static final EnumSet<CardType> ALCHEMY_CARD_TYPES =
             EnumSet.of(FIRE, WATER, EARTH, AIR);
