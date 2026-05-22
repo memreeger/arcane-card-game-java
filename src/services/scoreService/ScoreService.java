@@ -27,88 +27,67 @@ public class ScoreService implements IScoreService {
     @Override
     public int calculateScore(Hand hand) {
 
-        List<Card> cards = hand.getCards();
+        List<NumberCard> numberCards = new ArrayList<>();
 
-        Map<CardType, List<NumberCard>> groupedCards = new HashMap<>();
-
-        // Kartları type'a göre grupla
-        for (Card card : cards) {
-
+        for (Card card : hand.getCards()) {
             if (card instanceof NumberCard numberCard) {
-
-                CardType type = card.getCardType();
-
-                groupedCards
-                        .computeIfAbsent(type, k -> new ArrayList<>())
-                        .add(numberCard);
+                numberCards.add(numberCard);
             }
         }
 
+        if (numberCards.isEmpty()) {
+            return 0;
+        }
+
+        Map<CardType, List<NumberCard>> groupedCards = new HashMap<>();
+
+        for (NumberCard numberCard : numberCards) {
+            groupedCards
+                    .computeIfAbsent(numberCard.getCardType(), k -> new ArrayList<>())
+                    .add(numberCard);
+        }
+
+        int total = 0;
+
+        for (NumberCard card : numberCards) {
+            total += card.getValue();
+        }
+
         // FOUR OF A KIND
-        if (groupedCards.size() == 1) {
-
-            int total = 0;
-
-            for (List<NumberCard> list : groupedCards.values()) {
-                for (NumberCard card : list) {
-                    total += card.getValue();
-                }
-            }
-
+        if (numberCards.size() == 4 && groupedCards.size() == 1) {
             return total * 10;
         }
 
         // ONE OF EACH TYPE
-        if (groupedCards.size() == 4) {
-
-            int total = 0;
-
-            for (List<NumberCard> list : groupedCards.values()) {
-                for (NumberCard card : list) {
-                    total += card.getValue();
-                }
-            }
-
+        if (numberCards.size() == 4 && groupedCards.size() == 4) {
             return total * 5;
         }
 
-        // ONE PAIR
-        for (Map.Entry<CardType, List<NumberCard>> entry : groupedCards.entrySet()) {
+        // PAIR / PAIRS
+        int score = 0;
+        boolean hasPair = false;
 
-            List<NumberCard> sameTypeCards = entry.getValue();
+        for (List<NumberCard> sameTypeCards : groupedCards.values()) {
 
             if (sameTypeCards.size() == 2) {
+                hasPair = true;
 
                 int pairSum = 0;
-                int otherSum = 0;
 
-                // Pair toplamı
                 for (NumberCard card : sameTypeCards) {
                     pairSum += card.getValue();
                 }
 
-                // Diğer kartlar
-                for (Map.Entry<CardType, List<NumberCard>> otherEntry : groupedCards.entrySet()) {
-
-                    if (otherEntry.getKey() != entry.getKey()) {
-
-                        for (NumberCard card : otherEntry.getValue()) {
-                            otherSum += card.getValue();
-                        }
-                    }
+                score += pairSum * 2;
+            } else {
+                for (NumberCard card : sameTypeCards) {
+                    score += card.getValue();
                 }
-
-                return (pairSum * 2) + otherSum;
             }
         }
 
-        // DİĞER TÜM DURUMLAR
-        int total = 0;
-
-        for (List<NumberCard> list : groupedCards.values()) {
-            for (NumberCard card : list) {
-                total += card.getValue();
-            }
+        if (hasPair) {
+            return score;
         }
 
         return total;
