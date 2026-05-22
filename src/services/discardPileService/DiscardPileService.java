@@ -10,6 +10,9 @@ import java.util.List;
 public class DiscardPileService implements IDiscardPileService {
     private static DiscardPileService instance;
 
+    private final DiscardPile discardPile = new DiscardPile();
+
+
     private DiscardPileService() {
     }
 
@@ -21,10 +24,8 @@ public class DiscardPileService implements IDiscardPileService {
 
         return instance;
     }
-
     //IHandService handService = HandService.getInstance();
 
-    private final DiscardPile discardPile = new DiscardPile();
 
     /*
     @Override

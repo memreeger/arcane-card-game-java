@@ -14,6 +14,10 @@ import java.util.List;
 public class HandService implements IHandService {
     private static HandService instance;
 
+    private final IDeckDraw deckDraw = DeckService.getInstance();
+    private final IDiscardPileService discardPileService = DiscardPileService.getInstance();
+
+
     private HandService() {
     }
 
@@ -25,10 +29,6 @@ public class HandService implements IHandService {
 
         return instance;
     }
-
-
-    IDeckDraw deckDraw = DeckService.getInstance();
-    IDiscardPileService discardPileService = DiscardPileService.getInstance();
 
 
     @Override
