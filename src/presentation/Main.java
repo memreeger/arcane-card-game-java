@@ -1,14 +1,10 @@
 package presentation;
 
-import abst.IDeckCreator;
-import abst.IDeckShuffle;
-import abst.IHandService;
+import abst.IGameService;
 import enums.DeckType;
-import factory.DeckFactory;
-import model.deck.Deck;
-import model.hand.Hand;
-import services.deck.manipulate.DeckService;
-import services.hand.HandService;
+import enums.Difficulty;
+import model.card.Card;
+import services.gameService.GameService;
 
 import java.util.Scanner;
 
@@ -18,99 +14,185 @@ public class Main {
 
         Scanner input = new Scanner(System.in);
 
-        System.out.println("Lütfen deste türünü seçiniz");
+        IGameService gameService = GameService.getInstance();
+
+        System.out.println("========= KULATRO GAME =========");
+
+        // DECK SELECTION
+        System.out.println("\nLütfen deste türünü seçiniz");
         System.out.println("1 - Alchemy");
         System.out.println("2 - Element");
         System.out.println("3 - Quantum");
+        System.out.print("Seçiminiz: ");
 
         int deckChoice = input.nextInt();
 
-        Deck deck = switch (deckChoice) {
-            case 1 -> createDeck(DeckType.ALCHEMY_SET);
-            case 2 -> createDeck(DeckType.ELEMENT_SET);
-            case 3 -> createDeck(DeckType.QUANTUM_SET);
-            default -> throw new IllegalArgumentException("Hatalı deste seçimi");
+        DeckType selectedDeckType = switch (deckChoice) {
+
+            case 1 -> DeckType.ALCHEMY_SET;
+
+            case 2 -> DeckType.ELEMENT_SET;
+
+            case 3 -> DeckType.QUANTUM_SET;
+
+            default -> throw new IllegalArgumentException("Hatalı deste seçimi.");
         };
 
-        IDeckShuffle deckShuffleService = DeckService.getInstance();
-        IHandService handService = HandService.getInstance();
+        // DIFFICULTY SELECTION
+        System.out.println("\nLütfen zorluk seviyesi seçiniz");
+        System.out.println("1 - Easy");
+        System.out.println("2 - Medium");
+        System.out.println("3 - Hard");
+        System.out.println("4 - Extreme");
+        System.out.print("Seçiminiz: ");
 
-        deckShuffleService.shuffleDeck(deck);
+        int difficultyChoice = input.nextInt();
 
-        Hand hand = handService.createHand(deck);
+        Difficulty selectedDifficulty = switch (difficultyChoice) {
+
+            case 1 -> Difficulty.EASY;
+
+            case 2 -> Difficulty.MEDIUM;
+
+            case 3 -> Difficulty.HARD;
+
+            case 4 -> Difficulty.EXTREME;
+
+            default -> throw new IllegalArgumentException("Hatalı zorluk seçimi.");
+        };
+
+        // START GAME
+        gameService.startGame(selectedDeckType, selectedDifficulty);
 
         boolean running = true;
 
-        while (running) {
+        while (running && !gameService.isGameOver()) {
 
-            System.out.println("\n========= TEST MENU =========");
-            System.out.println("1 - Hand göster");
-            System.out.println("2 - Hand'e 1 kart ekle");
-            System.out.println("3 - Hand'e istediğim kadar kart ekle");
-            System.out.println("4 - Hand'den kart sil");
-            System.out.println("5 - Deck kalan kart sayısını göster");
-            System.out.println("6 - Hand kart sayısını göster");
-            System.out.println("0 - Çıkış");
+            System.out.println("\n========= GAME INFO =========");
+            System.out.println("Current Round: "
+                    + gameService.getCurrentRoundNumber() + " / 4");
+
+            System.out.println("Current Target Score: "
+                    + gameService.getCurrentTargetScore());
+
+            System.out.println("Total Score: "
+                    + gameService.getTotalScore());
+
+            System.out.println("Remaining Deck Cards: "
+                    + gameService.getRemainingDeckCardCount());
+
+            System.out.println("Discarded Cards: "
+                    + gameService.getDiscardedCardCount());
+
+            System.out.println("\n========= MENU =========");
+            System.out.println("1 - Show Hand");
+            System.out.println("2 - Discard Card And Draw New Card");
+            System.out.println("3 - Submit Hand");
+            System.out.println("4 - Show Discard Pile");
+            System.out.println("0 - Exit");
             System.out.print("Seçiminiz: ");
 
             int choice = input.nextInt();
 
             switch (choice) {
 
+                // SHOW HAND
                 case 1:
-                    System.out.println("\nYour Hand:");
-                    handService.showHand(hand);
+
+                    System.out.println("\n========= YOUR HAND =========");
+
+                    gameService.showCurrentHand();
+
                     break;
 
+                // DISCARD CARD
                 case 2:
-                    handService.addCard(hand, deck);
-                    System.out.println("Hand'e 1 kart eklendi.");
-                    break;
 
-                case 3:
-                    System.out.print("Kaç kart eklemek istiyorsunuz?: ");
-                    int count = input.nextInt();
+                    System.out.println("\n========= CURRENT HAND =========");
 
-                    handService.addCards(hand, deck, count);
-                    System.out.println(count + " kart hand'e eklendi.");
-                    break;
+                    gameService.showCurrentHand();
 
-                case 4:
-                    System.out.println("\nSilmeden önce hand:");
-                    handService.showHand(hand);
+                    System.out.print("\nDiscard etmek istediğiniz kart numarası: ");
 
-                    System.out.print("Silmek istediğiniz kartın sıra numarasını giriniz: ");
                     int cardNumber = input.nextInt();
 
                     int cardIndex = cardNumber - 1;
 
-                    handService.removeCard(hand, cardIndex);
-                    System.out.println(cardNumber + ". kart hand'den silindi.");
+                    gameService.discardCardAndDrawNewCard(cardIndex);
+
+                    System.out.println("\nKart discard edildi.");
+                    System.out.println("Yeni kart çekildi.");
+
+                    System.out.println("\n========= UPDATED HAND =========");
+
+                    gameService.showCurrentHand();
+
                     break;
 
-                case 5:
-                    System.out.println("Deck kalan kart sayısı: " + deck.getCards().size());
+                // SUBMIT HAND
+                case 3:
+
+                    System.out.println("\n========= HAND SUBMITTED =========");
+
+                    gameService.submitHand();
+
+                    if (!gameService.isGameOver()) {
+
+                        System.out.println("\nYeni round başladı.");
+
+                        System.out.println("\n========= NEW HAND =========");
+
+                        gameService.showCurrentHand();
+                    }
+
                     break;
 
-                case 6:
-                    System.out.println("Hand kart sayısı: " + hand.getCards().size());
+                // SHOW DISCARD PILE
+                case 4:
+
+                    System.out.println("\n========= DISCARD PILE =========");
+
+                    for (Card card : gameService.getDiscardedCards()) {
+
+                        System.out.println(card);
+                    }
+
                     break;
 
+                // EXIT
                 case 0:
+
                     running = false;
-                    System.out.println("Test sonlandırıldı.");
+
+                    System.out.println("\nOyun sonlandırıldı.");
+
                     break;
 
                 default:
-                    System.out.println("Hatalı seçim.");
+
+                    System.out.println("\nHatalı seçim.");
+            }
+        }
+
+        // FINAL RESULT
+        if (gameService.isGameOver()) {
+
+            System.out.println("\n========= FINAL RESULT =========");
+
+            System.out.println("Total Score: "
+                    + gameService.getTotalScore());
+
+            if (gameService.isPlayerWon()) {
+
+                System.out.println("YOU WIN!");
+            }
+
+            else {
+
+                System.out.println("YOU LOSE!");
             }
         }
 
         input.close();
-    }
-
-    public static Deck createDeck(DeckType deckType) {
-        IDeckCreator deckCreator = DeckFactory.createDeck(deckType);
-        return deckCreator.deckCreate();
     }
 }
