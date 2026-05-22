@@ -1,6 +1,6 @@
-# Kulatro Card Game (Java)
+# Arcane Card Game (Java)
 
-Kulatro is a console-based card game project developed in Java with a focus on object-oriented programming, layered architecture, and clean code practices.
+Arcane is a console-based card game project developed in Java with a focus on object-oriented programming, layered architecture, and clean code practices.
 
 The project was designed to improve backend-oriented thinking by separating responsibilities into different layers and building scalable game logic using design patterns and service-based architecture.
 
