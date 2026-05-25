@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @ToString(callSuper = true)
+
 public class SpecialCard extends Card {
     private String name;
     private String description;

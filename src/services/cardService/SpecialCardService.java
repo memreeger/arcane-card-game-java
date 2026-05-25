@@ -6,6 +6,7 @@ import enums.SpecialCardType;
 import model.card.Card;
 import model.card.NumberCard;
 import model.card.SpecialCard;
+import model.deck.Deck;
 import model.hand.Hand;
 
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ public class SpecialCardService implements ISpecialCardService {
 
         return instance;
     }
+
+    private static final int PAIR_MULTIPLIER = 3;
+    private static final int BONUS = 2;
 
     @Override
     public int applyEffects(Hand hand, int currentScore) {
@@ -65,7 +69,8 @@ public class SpecialCardService implements ISpecialCardService {
                         break;
 
                     case CATALYST:
-                        finalScore = calculateScoreWithPairMultiplier(hand, 3);
+                        int catalystScore = calculateScoreWithPairMultiplier(hand, PAIR_MULTIPLIER);
+                        finalScore = Math.max(finalScore, catalystScore);
                         break;
 
                     case TRANSMUTATION:
@@ -75,7 +80,7 @@ public class SpecialCardService implements ISpecialCardService {
 
                     // ELEMENT SET
                     case PERIODIC_BOOST:
-                        finalScore = calculateScoreWithValueBonus(hand, 2);
+                        finalScore = Math.max(finalScore, calculateScoreWithValueBonus(hand, BONUS));
                         break;
 
                     case NOBLE_GAS:
@@ -117,6 +122,114 @@ public class SpecialCardService implements ISpecialCardService {
 
         return finalScore;
     }
+
+    @Override
+    public void useSpecialCard(Hand hand, Deck deck, int specialCardIndex) {
+
+        Card selectedCard = hand.getCards().get(specialCardIndex);
+
+        if (!(selectedCard instanceof SpecialCard specialCard)) {
+
+            System.out.println("Selected card is not a special card.");
+            return;
+        }
+
+        if (specialCard.isUsed()) {
+
+            System.out.println("This special card has already been used.");
+            return;
+        }
+
+        switch (specialCard.getSpecialCardType()) {
+
+            case TRANSMUTATION:
+
+                useTransmutation(
+                        hand,
+                        deck,
+                        specialCardIndex
+                );
+
+                break;
+
+            case ISOTOPE_DECAY:
+
+                useIsotopeDecay(
+                        hand,
+                        deck
+                );
+
+                break;
+
+            case GLUON_BIND:
+
+                useGluonBind(hand);
+
+                break;
+
+            case PHOTON_BURST:
+
+                usePhotonBurst(
+                        hand,
+                        deck
+                );
+
+                break;
+
+            default:
+
+                System.out.println("This special card is automatically used during score calculation.");
+                return;
+        }
+
+        specialCard.setUsed(true);
+    }
+
+
+    private void useTransmutation(Hand hand, Deck deck, int specialCardIndex) {
+
+        hand.getCards().remove(specialCardIndex);
+
+        Card newCard = deck.getCards().remove(0);
+
+        hand.getCards().add(newCard);
+    }
+
+    private void useIsotopeDecay(Hand hand, Deck deck) {
+
+        hand.getCards().clear();
+
+        for (int i = 0; i < 4; i++) {
+
+            hand.getCards().add(
+                    deck.getCards().remove(0)
+            );
+        }
+    }
+
+    private void useGluonBind(Hand hand) {
+
+        System.out.println(
+                "Gluon Bind effect activated."
+        );
+    }
+
+    private void usePhotonBurst(Hand hand, Deck deck) {
+
+        System.out.println(
+                "Photon Burst activated."
+        );
+
+        int previewCount = Math.min(3, deck.getCards().size());
+
+        for (int i = 0; i < previewCount; i++) {
+
+            System.out.println(
+                    deck.getCards().get(i)
+            );
+        }
+    }
+
 
     private DeckType getDeckTypeFromHand(Hand hand) {
 
