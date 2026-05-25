@@ -42,9 +42,6 @@ public class DeckService implements IDeckDraw, IDeckShuffle {
 
     @Override
     public List<Card> drawCards(Deck deck, int count) {
-        if (count < 0 || count > 5) {
-            throw new IllegalArgumentException("Enter a number between 0-5");
-        }
 
         List<Card> drawnCards = new ArrayList<>();
 
