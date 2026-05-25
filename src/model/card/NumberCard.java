@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @ToString(callSuper = true)
+
 public class NumberCard extends Card {
     private byte value;
 
