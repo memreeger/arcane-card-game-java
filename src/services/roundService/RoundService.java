@@ -1,7 +1,7 @@
 package services.roundService;
 
 import abst.IRoundService;
-import enums.Difficulty;
+import enums.DifficultyType;
 import model.round.Round;
 
 public class RoundService implements IRoundService {
@@ -21,7 +21,7 @@ public class RoundService implements IRoundService {
     }
 
     @Override
-    public Round createRound(int roundNumber, Difficulty difficulty) {
+    public Round createRound(int roundNumber, DifficultyType difficulty) {
 
         int targetScore;
 

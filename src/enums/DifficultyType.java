@@ -1,6 +1,6 @@
-package enums
+package enums;
 
-enum class Difficulty {
+public enum DifficultyType {
     EASY,
     MEDIUM,
     HARD,

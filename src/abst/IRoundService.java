@@ -1,11 +1,11 @@
 package abst;
 
-import enums.Difficulty;
+import enums.DifficultyType;
 import model.round.Round;
 
 public interface IRoundService {
 
-    Round createRound(int roundNumber, Difficulty difficulty);
+    Round createRound(int roundNumber, DifficultyType difficulty);
 
     void setPlayerScore(Round round, int score);
 

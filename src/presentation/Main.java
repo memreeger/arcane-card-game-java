@@ -2,7 +2,7 @@ package presentation;
 
 import abst.IGameService;
 import enums.DeckType;
-import enums.Difficulty;
+import enums.DifficultyType;
 import model.card.Card;
 import services.gameService.GameService;
 
@@ -48,15 +48,15 @@ public class Main {
 
         int difficultyChoice = input.nextInt();
 
-        Difficulty selectedDifficulty = switch (difficultyChoice) {
+        DifficultyType selectedDifficulty = switch (difficultyChoice) {
 
-            case 1 -> Difficulty.EASY;
+            case 1 -> DifficultyType.EASY;
 
-            case 2 -> Difficulty.MEDIUM;
+            case 2 -> DifficultyType.MEDIUM;
 
-            case 3 -> Difficulty.HARD;
+            case 3 -> DifficultyType.HARD;
 
-            case 4 -> Difficulty.EXTREME;
+            case 4 -> DifficultyType.EXTREME;
 
             default -> throw new IllegalArgumentException("Hatalı zorluk seçimi.");
         };

@@ -1,7 +1,7 @@
 package model.round;
 
+import enums.DifficultyType;
 import lombok.*;
-import enums.Difficulty;
 
 @Getter
 @Setter
@@ -13,6 +13,6 @@ public class Round {
     private int roundNumber;
     private int targetScore;
     private int playerScore;
-    private Difficulty difficulty;
+    private DifficultyType difficulty;
     private boolean completed;
 }

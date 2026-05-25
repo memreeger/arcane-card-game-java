@@ -1,7 +1,8 @@
 package abst;
 
 import enums.DeckType;
-import enums.Difficulty;
+
+import enums.DifficultyType;
 import model.card.Card;
 import model.hand.Hand;
 
@@ -9,23 +10,25 @@ import java.util.List;
 
 public interface IGameService {
 
-    void startGame(DeckType deckType, Difficulty difficulty);
-
-    Hand getCurrentHand();
+    void startGame(DeckType deckType, DifficultyType difficulty);
 
     void showCurrentHand();
 
     void discardCardAndDrawNewCard(int cardIndex);
 
-    int getRemainingDeckCardCount();
-
-    int getDiscardedCardCount();
-
-    List<Card> getDiscardedCards();
-
     void showDiscardedCards();
 
     void submitHand();
+
+    boolean isGameOver();
+
+    boolean isPlayerWon();
+
+    List<Card> getDiscardedCards();
+
+    Hand getCurrentHand();
+
+    int getDiscardedCardCount();
 
     int getCurrentRoundNumber();
 
@@ -33,7 +36,5 @@ public interface IGameService {
 
     int getTotalScore();
 
-    boolean isGameOver();
-
-    boolean isPlayerWon();
+    int getRemainingDeckCardCount();
 }

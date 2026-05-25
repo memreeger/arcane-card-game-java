@@ -2,7 +2,7 @@ package services.gameService;
 
 import abst.*;
 import enums.DeckType;
-import enums.Difficulty;
+import enums.DifficultyType;
 import factory.DeckFactory;
 import model.card.Card;
 import model.deck.Deck;
@@ -22,7 +22,7 @@ public class GameService implements IGameService {
 
     private Deck deck;
     private Hand hand;
-    private Difficulty difficulty;
+    private DifficultyType difficulty;
     private Round currentRound;
     private int currentRoundNumber = 1;
     private int totalScore = 0;
@@ -51,7 +51,7 @@ public class GameService implements IGameService {
 
 
     @Override
-    public void startGame(DeckType deckType, Difficulty difficulty) {
+    public void startGame(DeckType deckType, DifficultyType difficulty) {
 
         this.difficulty = difficulty;
         this.currentRoundNumber = 1;
