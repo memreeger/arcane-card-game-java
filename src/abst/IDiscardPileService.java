@@ -17,4 +17,6 @@ public interface IDiscardPileService {
 
     List<Card> getDiscardedCards();
 
+    void clearDiscardPile();
+
 }

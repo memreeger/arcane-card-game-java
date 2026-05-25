@@ -63,4 +63,9 @@ public class DiscardPileService implements IDiscardPileService {
     public List<Card> getDiscardedCards() {
         return discardPile.getDiscardedCards();
     }
+
+    @Override
+    public void clearDiscardPile() {
+        discardPile.getDiscardedCards().clear();
+    }
 }
