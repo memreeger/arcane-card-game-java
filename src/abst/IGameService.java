@@ -14,7 +14,7 @@ public interface IGameService {
 
     void showCurrentHand();
 
-    void discardCardAndDrawNewCard(int cardIndex);
+    boolean  discardCardAndDrawNewCard(int cardIndex);
 
     void showDiscardedCards();
 
@@ -37,4 +37,6 @@ public interface IGameService {
     int getTotalScore();
 
     int getRemainingDeckCardCount();
+
+    void useSpecialCard(int specialCardIndex);
 }

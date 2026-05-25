@@ -32,6 +32,10 @@ public class GameService implements IGameService {
 
     private static GameService instance;
 
+    private int totalDiscardCount = 0;
+    private static final int MAX_DISCARD_LIMIT = 6;
+    private static final int MAX_ROUND = 4;
+
     private final IDeckShuffle deckShuffleService = DeckService.getInstance();
     private final IHandService handService = HandService.getInstance();
     private final IDiscardPileService discardPileService = DiscardPileService.getInstance();
@@ -53,10 +57,14 @@ public class GameService implements IGameService {
     @Override
     public void startGame(DeckType deckType, DifficultyType difficulty) {
 
+        this.totalTargetScore = 0;
+        this.playerWon = false;
         this.difficulty = difficulty;
         this.currentRoundNumber = 1;
         this.totalScore = 0;
         this.gameOver = false;
+        this.totalDiscardCount = 0;
+        discardPileService.clearDiscardPile();
 
         IDeckCreator deckCreator = DeckFactory.createDeck(deckType);
 
@@ -106,7 +114,7 @@ public class GameService implements IGameService {
         }
 
         // GAME FINISH
-        if (currentRoundNumber == 4) {
+        if (currentRoundNumber == MAX_ROUND) {
 
             gameOver = true;
 
@@ -141,21 +149,30 @@ public class GameService implements IGameService {
                         difficulty
                 );
 
+        totalTargetScore += currentRound.getTargetScore();
+
         // New hand
         this.hand = handService.createHand(deck);
+
 
         System.out.println("\nNext round started.");
     }
 
     @Override
-    public void discardCardAndDrawNewCard(int cardIndex) {
-        Card removeCard = handService.removeCard(hand, cardIndex);
-        discardPileService.addCardByCard(removeCard);
+    public boolean discardCardAndDrawNewCard(int cardIndex) {
+        if (totalDiscardCount >= MAX_DISCARD_LIMIT) {
+            System.out.println("\n ======================================== Maximum discard limit reached. ========================================");
+            return false;
+        }
+        Card removedCard = handService.removeCard(hand, cardIndex);
+        discardPileService.addCardByCard(removedCard);
 
         handService.addCard(hand, deck);
 
-    }
+        totalDiscardCount++;
 
+        return true;
+    }
 
     @Override
     public int getRemainingDeckCardCount() {
@@ -212,5 +229,12 @@ public class GameService implements IGameService {
     public boolean isPlayerWon() {
         return playerWon;
     }
+
+    @Override
+    public void useSpecialCard(int specialCardIndex) {
+
+        specialCardService.useSpecialCard(hand, deck, specialCardIndex);
+    }
+
 
 }
