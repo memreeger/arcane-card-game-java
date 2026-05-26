@@ -16,10 +16,8 @@ public class User {
     private String password;
     private LocalDateTime createdAt;
     private Hand hand;
-    private static int idCounter = 1;
 
     public User(String username, String password) {
-        this.id = idCounter++;
         this.username = username;
         this.password = password;
         this.createdAt = LocalDateTime.now();
