@@ -1,22 +1,28 @@
 package presentation;
 
 import abst.IGameService;
+import abst.IGameSessionService;
 import abst.IUserService;
+import dao.gameSessionDao.GameSessionDao;
+import dto.gameSessionDto.GameSessionRequestDto;
+import dto.gameSessionDto.GameSessionResponseDto;
 import dto.userDto.UserRequestDto;
 import dto.userDto.UserResponseDto;
 import enums.DeckType;
 import enums.DifficultyType;
 import model.card.Card;
 import services.gameService.GameService;
+import services.gameSession.GameSessionService;
 import services.userService.UserService;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static final int MAX_ROUND = 4;
     public static final int MAX_DISCARD = 6;
 
-
+/*
     public static void main(String[] args) {
 
 
@@ -303,75 +309,166 @@ public class Main {
     }
 
 
-        /*
-    public static void main(String[] args) {
-        UserService userService = UserService.getInstance();
+ */
 
-        try {
-            System.out.println("=== REGISTER TEST ===");
+    /*
+public static void main(String[] args) {
+    UserService userService = UserService.getInstance();
 
-            UserRequestDto registerRequest = new UserRequestDto();
-            registerRequest.setUserName("emreeger");
-            registerRequest.setPassword("12345");
+    try {
+        System.out.println("=== REGISTER TEST ===");
 
-            UserResponseDto registeredUser = userService.register(registerRequest);
+        UserRequestDto registerRequest = new UserRequestDto();
+        registerRequest.setUserName("emreeger");
+        registerRequest.setPassword("12345");
 
-            System.out.println("User registered successfully:");
-            System.out.println("ID: " + registeredUser.getId());
-            System.out.println("Username: " + registeredUser.getUserName());
-            System.out.println("Created At: " + registeredUser.getCreatedAt());
+        UserResponseDto registeredUser = userService.register(registerRequest);
 
-        } catch (Exception e) {
-            System.out.println("Register error: " + e.getMessage());
-        }
+        System.out.println("User registered successfully:");
+        System.out.println("ID: " + registeredUser.getId());
+        System.out.println("Username: " + registeredUser.getUserName());
+        System.out.println("Created At: " + registeredUser.getCreatedAt());
 
-        try {
-            System.out.println("\n=== LOGIN TEST ===");
-
-            UserRequestDto loginRequest = new UserRequestDto();
-            loginRequest.setUserName("emreeger");
-            loginRequest.setPassword("12345");
-
-            UserResponseDto loggedInUser = userService.login(loginRequest);
-
-            System.out.println("Login successful:");
-            System.out.println("ID: " + loggedInUser.getId());
-            System.out.println("Username: " + loggedInUser.getUserName());
-            System.out.println("Created At: " + loggedInUser.getCreatedAt());
-
-        } catch (Exception e) {
-            System.out.println("Login error: " + e.getMessage());
-        }
-
-        try {
-            System.out.println("\n=== DUPLICATE USERNAME TEST ===");
-
-            UserRequestDto duplicateRequest = new UserRequestDto();
-            duplicateRequest.setUserName("emreegers");
-            duplicateRequest.setPassword("99999");
-
-            userService.register(duplicateRequest);
-
-        } catch (Exception e) {
-            System.out.println("Duplicate test result: " + e.getMessage());
-        }
-
-        try {
-            System.out.println("\n=== WRONG PASSWORD TEST ===");
-
-            UserRequestDto wrongLoginRequest = new UserRequestDto();
-            wrongLoginRequest.setUserName("emreeger");
-            wrongLoginRequest.setPassword("1234");
-
-            userService.login(wrongLoginRequest);
-
-        } catch (Exception e) {
-            System.out.println("Wrong password test result: " + e.getMessage());
-        }
+    } catch (Exception e) {
+        System.out.println("Register error: " + e.getMessage());
     }
 
+    try {
+        System.out.println("\n=== LOGIN TEST ===");
 
-         */
+        UserRequestDto loginRequest = new UserRequestDto();
+        loginRequest.setUserName("emreeger");
+        loginRequest.setPassword("12345");
+
+        UserResponseDto loggedInUser = userService.login(loginRequest);
+
+        System.out.println("Login successful:");
+        System.out.println("ID: " + loggedInUser.getId());
+        System.out.println("Username: " + loggedInUser.getUserName());
+        System.out.println("Created At: " + loggedInUser.getCreatedAt());
+
+    } catch (Exception e) {
+        System.out.println("Login error: " + e.getMessage());
+    }
+
+    try {
+        System.out.println("\n=== DUPLICATE USERNAME TEST ===");
+
+        UserRequestDto duplicateRequest = new UserRequestDto();
+        duplicateRequest.setUserName("emreegers");
+        duplicateRequest.setPassword("99999");
+
+        userService.register(duplicateRequest);
+
+    } catch (Exception e) {
+        System.out.println("Duplicate test result: " + e.getMessage());
+    }
+
+    try {
+        System.out.println("\n=== WRONG PASSWORD TEST ===");
+
+        UserRequestDto wrongLoginRequest = new UserRequestDto();
+        wrongLoginRequest.setUserName("emreeger");
+        wrongLoginRequest.setPassword("1234");
+
+        userService.login(wrongLoginRequest);
+
+    } catch (Exception e) {
+        System.out.println("Wrong password test result: " + e.getMessage());
+    }
 }
+
+
+     */
+    public static void main(String[] args) {
+
+        IGameSessionService gameSessionService =
+                GameSessionService.getInstance();
+
+        System.out.println("========= GAME SESSION SERVICE TEST =========");
+
+        GameSessionRequestDto requestDto = new GameSessionRequestDto();
+
+        requestDto.setUserId(1); // DB'de var olan user id olmalı
+        requestDto.setDeckType(DeckType.ALCHEMY_SET);
+        requestDto.setDifficulty(DifficultyType.EASY);
+        requestDto.setCurrentRoundNumber(1);
+        requestDto.setTotalScore(0);
+        requestDto.setTotalTargetScore(40);
+        requestDto.setTotalDiscardCount(0);
+        requestDto.setGameOver(false);
+        requestDto.setPlayerWon(false);
+
+        System.out.println("\n1) Creating game session...");
+
+        GameSessionResponseDto createdSession =
+                gameSessionService.createGameSession(requestDto);
+
+        System.out.println("Created Session:");
+        System.out.println(createdSession);
+
+        System.out.println("\n2) Getting game session by id...");
+
+        GameSessionResponseDto foundSession =
+                gameSessionService.getGameSessionById(
+                        createdSession.getId()
+                );
+
+        System.out.println("Found Session:");
+        System.out.println(foundSession);
+
+        System.out.println("\n3) Updating game session...");
+
+        foundSession.setCurrentRoundNumber(2);
+        foundSession.setTotalScore(75);
+        foundSession.setTotalTargetScore(120);
+        foundSession.setTotalDiscardCount(3);
+
+        gameSessionService.updateGameSession(foundSession);
+
+        GameSessionResponseDto updatedSession =
+                gameSessionService.getGameSessionById(
+                        foundSession.getId()
+                );
+
+        System.out.println("Updated Session:");
+        System.out.println(updatedSession);
+
+        System.out.println("\n4) Getting sessions by user id...");
+
+        List<GameSessionResponseDto> sessions =
+                gameSessionService.getGameSessionsByUserId(1);
+
+        for (GameSessionResponseDto session : sessions) {
+            System.out.println(session);
+        }
+
+        System.out.println("\n5) Getting last active session by user id...");
+
+        GameSessionResponseDto lastActiveSession =
+                gameSessionService.getLastActiveSessionByUserId(1);
+
+        System.out.println("Last Active Session:");
+        System.out.println(lastActiveSession);
+
+        System.out.println("\n6) Finishing game session...");
+
+        gameSessionService.finishGameSession(
+                createdSession.getId(),
+                true
+        );
+
+        GameSessionResponseDto finishedSession =
+                gameSessionService.getGameSessionById(
+                        createdSession.getId()
+                );
+
+        System.out.println("Finished Session:");
+        System.out.println(finishedSession);
+
+        System.out.println("\n========= SERVICE TEST COMPLETED =========");
+    }
+}
+
 
 
