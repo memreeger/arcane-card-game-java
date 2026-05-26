@@ -42,4 +42,5 @@ public interface IGameService {
     void useSpecialCard(int specialCardIndex);
 
     UserResponseDto getCurrentUser();
+
 }

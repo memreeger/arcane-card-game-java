@@ -1,6 +1,8 @@
 package services.gameService;
 
 import abst.*;
+import dto.gameSessionDto.GameSessionRequestDto;
+import dto.gameSessionDto.GameSessionResponseDto;
 import dto.userDto.UserResponseDto;
 import enums.DeckType;
 import enums.DifficultyType;
@@ -12,6 +14,8 @@ import model.round.Round;
 import services.cardService.SpecialCardService;
 import services.deckService.manipulate.DeckService;
 import services.discardPileService.DiscardPileService;
+import services.gameCardService.GameCardService;
+import services.gameSession.GameSessionService;
 import services.handService.HandService;
 import services.roundService.RoundService;
 import services.scoreService.ScoreService;
@@ -44,6 +48,9 @@ public class GameService implements IGameService {
     private final IRoundService roundService = RoundService.getInstance();
     private final IScoreService scoreService = ScoreService.getInstance();
     private final ISpecialCardService specialCardService = SpecialCardService.getInstance();
+    private final IGameCardService gameCardService = GameCardService.getInstance();
+    private final IGameSessionService gameSessionService = GameSessionService.getInstance();
+    private GameSessionResponseDto currentGameSession;
 
     private GameService() {
     }
@@ -68,9 +75,9 @@ public class GameService implements IGameService {
         this.currentRoundNumber = 1;
         this.totalScore = 0;
         this.gameOver = false;
+        discardPileService.clearDiscardPile();
 
         IDeckCreator deckCreator = DeckFactory.createDeck(deckType);
-
         this.deck = deckCreator.deckCreate();
 
         deckShuffleService.shuffleDeck(deck);
@@ -80,6 +87,27 @@ public class GameService implements IGameService {
         this.currentRound = roundService.createRound(currentRoundNumber, difficulty);
 
         totalTargetScore += currentRound.getTargetScore();
+        GameSessionRequestDto requestDto = new GameSessionRequestDto();
+
+        requestDto.setUserId(currentUser.getId());
+        requestDto.setDeckType(deckType);
+        requestDto.setDifficulty(difficulty);
+        requestDto.setCurrentRoundNumber(currentRoundNumber);
+        requestDto.setTotalScore(totalScore);
+        requestDto.setTotalTargetScore(totalTargetScore);
+        requestDto.setTotalDiscardCount(totalDiscardCount);
+        requestDto.setGameOver(gameOver);
+        requestDto.setPlayerWon(playerWon);
+
+        currentGameSession =
+                gameSessionService.createGameSession(requestDto);
+
+        gameCardService.saveGameStateCards(
+                currentGameSession.getId(),
+                deck,
+                hand,
+                discardPileService.getDiscardedCards()
+        );
     }
 
     @Override
@@ -89,20 +117,12 @@ public class GameService implements IGameService {
             throw new IllegalStateException("Game is already over.");
         }
 
-        // Base score
         int baseScore = scoreService.calculateScore(hand);
 
-        // Special card effects
-        int finalScore =
-                specialCardService.applyEffects(
-                        hand,
-                        baseScore
-                );
+        int finalScore = specialCardService.applyEffects(hand, baseScore);
 
-        // Round score set
         roundService.setPlayerScore(currentRound, finalScore);
 
-        // Total score
         totalScore += finalScore;
 
         System.out.println("\n========= ROUND RESULT =========");
@@ -117,12 +137,10 @@ public class GameService implements IGameService {
             System.out.println("Round failed.");
         }
 
-        // GAME FINISH
         if (currentRoundNumber == MAX_ROUND) {
 
             gameOver = true;
 
-            System.out.println("\n========= GAME OVER =========");
             double playerAverage = totalScore / (double) MAX_ROUND;
             double targetAverage = totalTargetScore / (double) MAX_ROUND;
 
@@ -131,7 +149,6 @@ public class GameService implements IGameService {
             System.out.println("\n========= GAME OVER =========");
             System.out.println("Total Score: " + totalScore);
             System.out.println("Total Target Score: " + totalTargetScore);
-
             System.out.println("Player Average: " + playerAverage);
             System.out.println("Target Average: " + targetAverage);
 
@@ -141,39 +158,80 @@ public class GameService implements IGameService {
                 System.out.println("YOU LOSE!");
             }
 
+            currentGameSession.setCurrentRoundNumber(currentRoundNumber);
+            currentGameSession.setTotalScore(totalScore);
+            currentGameSession.setTotalTargetScore(totalTargetScore);
+            currentGameSession.setTotalDiscardCount(totalDiscardCount);
+            currentGameSession.setGameOver(gameOver);
+            currentGameSession.setPlayerWon(playerWon);
+
+            gameSessionService.updateGameSession(currentGameSession);
+
+            gameCardService.saveGameStateCards(
+                    currentGameSession.getId(),
+                    deck,
+                    hand,
+                    discardPileService.getDiscardedCards()
+            );
+
             return;
         }
 
-        // NEXT ROUND
         currentRoundNumber++;
 
-        currentRound =
-                roundService.createRound(
-                        currentRoundNumber,
-                        difficulty
-                );
+        currentRound = roundService.createRound(
+                currentRoundNumber,
+                difficulty
+        );
 
         totalTargetScore += currentRound.getTargetScore();
 
-        // New hand
         this.hand = handService.createHand(deck);
 
+        currentGameSession.setCurrentRoundNumber(currentRoundNumber);
+        currentGameSession.setTotalScore(totalScore);
+        currentGameSession.setTotalTargetScore(totalTargetScore);
+        currentGameSession.setTotalDiscardCount(totalDiscardCount);
+        currentGameSession.setGameOver(gameOver);
+        currentGameSession.setPlayerWon(playerWon);
+
+        gameSessionService.updateGameSession(currentGameSession);
+
+        gameCardService.saveGameStateCards(
+                currentGameSession.getId(),
+                deck,
+                hand,
+                discardPileService.getDiscardedCards()
+        );
 
         System.out.println("\nNext round started.");
     }
 
     @Override
     public boolean discardCardAndDrawNewCard(int cardIndex) {
+
         if (totalDiscardCount >= MAX_DISCARD_LIMIT) {
-            System.out.println("\n ======================================== Maximum discard limit reached. ========================================");
+            System.out.println("\nMaximum discard limit reached.");
             return false;
         }
+
         Card removedCard = handService.removeCard(hand, cardIndex);
         discardPileService.addCardByCard(removedCard);
 
         handService.addCard(hand, deck);
 
         totalDiscardCount++;
+
+        currentGameSession.setTotalDiscardCount(totalDiscardCount);
+
+        gameSessionService.updateGameSession(currentGameSession);
+
+        gameCardService.saveGameStateCards(
+                currentGameSession.getId(),
+                deck,
+                hand,
+                discardPileService.getDiscardedCards()
+        );
 
         return true;
     }
@@ -238,6 +296,13 @@ public class GameService implements IGameService {
     public void useSpecialCard(int specialCardIndex) {
 
         specialCardService.useSpecialCard(hand, deck, specialCardIndex);
+
+        gameCardService.saveGameStateCards(
+                currentGameSession.getId(),
+                deck,
+                hand,
+                discardPileService.getDiscardedCards()
+        );
     }
 
     @Override

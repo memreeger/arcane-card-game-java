@@ -22,13 +22,16 @@ public class UserDao implements
         return instance;
     }
 
+    private UserDao() {
+    }
+
     @Override
     public void save(User user) {
 
         String sql = """
-            INSERT INTO users (username, password, created_at)
-            VALUES (?, ?, ?)
-            """;
+                INSERT INTO users (username, password, created_at)
+                VALUES (?, ?, ?)
+                """;
 
         try (Connection connection = DaoConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {

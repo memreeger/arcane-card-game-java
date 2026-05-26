@@ -380,6 +380,7 @@ public static void main(String[] args) {
 
 
      */
+    /*
     public static void main(String[] args) {
 
         IGameSessionService gameSessionService =
@@ -467,6 +468,203 @@ public static void main(String[] args) {
         System.out.println(finishedSession);
 
         System.out.println("\n========= SERVICE TEST COMPLETED =========");
+    }
+
+     */
+
+    public static void main(String[] args) {
+
+        Scanner input = new Scanner(System.in);
+
+        IUserService userService = UserService.getInstance();
+        IGameService gameService = GameService.getInstance();
+
+        UserResponseDto currentUser = authenticateUser(input, userService);
+
+        DeckType deckType = selectDeckType(input);
+        DifficultyType difficulty = selectDifficulty(input);
+
+        gameService.startGame(deckType, difficulty, currentUser);
+
+        while (!gameService.isGameOver()) {
+
+            System.out.println("\n========= GAME INFO =========");
+            System.out.println("User: " + gameService.getCurrentUser().getUsername());
+            System.out.println("Round: " + gameService.getCurrentRoundNumber() + " / 4");
+            System.out.println("Target Score: " + gameService.getCurrentTargetScore());
+            System.out.println("Total Score: " + gameService.getTotalScore());
+            System.out.println("Remaining Deck Cards: " + gameService.getRemainingDeckCardCount());
+            System.out.println("Discarded Cards: " + gameService.getDiscardedCardCount());
+
+            System.out.println("\n========= MENU =========");
+            System.out.println("1 - Show Hand");
+            System.out.println("2 - Discard Card And Draw New Card");
+            System.out.println("3 - Use Special Card");
+            System.out.println("4 - Submit Hand");
+            System.out.println("5 - Show Discard Pile");
+            System.out.println("0 - Exit");
+            System.out.print("Choice: ");
+
+            int choice = input.nextInt();
+
+            switch (choice) {
+
+                case 1:
+                    System.out.println("\n========= YOUR HAND =========");
+                    gameService.showCurrentHand();
+                    break;
+
+                case 2:
+                    System.out.println("\n========= CURRENT HAND =========");
+                    gameService.showCurrentHand();
+
+                    System.out.print("Enter card number to discard: ");
+                    int cardNumber = input.nextInt();
+
+                    boolean discarded =
+                            gameService.discardCardAndDrawNewCard(cardNumber - 1);
+
+                    if (discarded) {
+                        System.out.println("Card discarded and new card drawn.");
+                    }
+
+                    break;
+
+                case 3:
+                    System.out.println("\n========= CURRENT HAND =========");
+                    gameService.showCurrentHand();
+
+                    System.out.print("Enter special card number: ");
+                    int specialCardNumber = input.nextInt();
+
+                    gameService.useSpecialCard(specialCardNumber - 1);
+
+                    System.out.println("Special card action completed.");
+                    break;
+
+                case 4:
+                    gameService.submitHand();
+                    break;
+
+                case 5:
+                    System.out.println("\n========= DISCARD PILE =========");
+
+                    for (Card card : gameService.getDiscardedCards()) {
+                        System.out.println(card);
+                    }
+                    break;
+
+                case 0:
+                    System.out.println("Game exited.");
+                    input.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        }
+
+        System.out.println("\n========= FINAL RESULT =========");
+        System.out.println("Total Score: " + gameService.getTotalScore());
+
+        if (gameService.isPlayerWon()) {
+            System.out.println("YOU WIN!");
+        } else {
+            System.out.println("YOU LOSE!");
+        }
+
+        input.close();
+    }
+
+    private static UserResponseDto authenticateUser(
+            Scanner input,
+            IUserService userService
+    ) {
+
+        while (true) {
+
+            System.out.println("========= USER MENU =========");
+            System.out.println("1 - Register");
+            System.out.println("2 - Login");
+            System.out.print("Choice: ");
+
+            int choice = input.nextInt();
+            input.nextLine();
+
+            System.out.print("Username: ");
+            String username = input.nextLine();
+
+            System.out.print("Password: ");
+            String password = input.nextLine();
+
+            UserRequestDto requestDto = new UserRequestDto();
+            requestDto.setUsername(username);
+            requestDto.setPassword(password);
+
+            if (choice == 1) {
+                UserResponseDto user = userService.register(requestDto);
+
+                if (user != null) {
+                    System.out.println("Register successful. Welcome, " + user.getUsername());
+                    return user;
+                }
+
+                System.out.println("Register failed.");
+            }
+
+            else if (choice == 2) {
+                UserResponseDto user = userService.login(requestDto);
+
+                if (user != null) {
+                    System.out.println("Login successful. Welcome back, " + user.getUsername());
+                    return user;
+                }
+
+                System.out.println("Invalid username or password.");
+            }
+
+            else {
+                System.out.println("Invalid choice.");
+            }
+        }
+    }
+
+    private static DeckType selectDeckType(Scanner input) {
+
+        System.out.println("\n========= SELECT DECK =========");
+        System.out.println("1 - Alchemy");
+        System.out.println("2 - Element");
+        System.out.println("3 - Quantum");
+        System.out.print("Choice: ");
+
+        int choice = input.nextInt();
+
+        return switch (choice) {
+            case 1 -> DeckType.ALCHEMY_SET;
+            case 2 -> DeckType.ELEMENT_SET;
+            case 3 -> DeckType.QUANTUM_SET;
+            default -> throw new IllegalArgumentException("Invalid deck choice.");
+        };
+    }
+
+    private static DifficultyType selectDifficulty(Scanner input) {
+
+        System.out.println("\n========= SELECT DIFFICULTY =========");
+        System.out.println("1 - Easy");
+        System.out.println("2 - Medium");
+        System.out.println("3 - Hard");
+        System.out.println("4 - Extreme");
+        System.out.print("Choice: ");
+
+        int choice = input.nextInt();
+
+        return switch (choice) {
+            case 1 -> DifficultyType.EASY;
+            case 2 -> DifficultyType.MEDIUM;
+            case 3 -> DifficultyType.HARD;
+            case 4 -> DifficultyType.EXTREME;
+            default -> throw new IllegalArgumentException("Invalid difficulty choice.");
+        };
     }
 }
 

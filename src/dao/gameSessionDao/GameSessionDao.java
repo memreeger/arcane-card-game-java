@@ -25,6 +25,8 @@ public class GameSessionDao implements
         return instance;
     }
 
+    private GameSessionDao() {
+    }
 
     @Override
     public GameSessionResponseDto findById(int id) {
