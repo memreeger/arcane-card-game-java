@@ -1,4 +1,4 @@
-package abst.daoAbst;
+package abst.daoAbst.user;
 
 import model.user.User;
 

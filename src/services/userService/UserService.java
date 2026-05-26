@@ -27,18 +27,18 @@ public class UserService implements IUserService {
 
         validateRequest(requestDto);
 
-        if (userDao.existsByUsername(requestDto.getUserName())) {
+        if (userDao.existsByUsername(requestDto.getUsername())) {
             throw new IllegalArgumentException("This username already exists.");
         }
 
         User user = new User(
-                requestDto.getUserName(),
+                requestDto.getUsername(),
                 requestDto.getPassword()
         );
 
         userDao.save(user);
 
-        User savedUser = userDao.findByUsername(requestDto.getUserName());
+        User savedUser = userDao.findByUsername(requestDto.getUsername());
 
         return convertToResponseDto(savedUser);
     }
@@ -48,7 +48,7 @@ public class UserService implements IUserService {
 
         validateRequest(requestDto);
 
-        User user = userDao.findByUsername(requestDto.getUserName());
+        User user = userDao.findByUsername(requestDto.getUsername());
 
         if (user == null) {
             throw new IllegalArgumentException("User not found.");
@@ -77,7 +77,7 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("Request cannot be null.");
         }
 
-        if (requestDto.getUserName() == null || requestDto.getUserName().isBlank()) {
+        if (requestDto.getUsername() == null || requestDto.getUsername().isBlank()) {
             throw new IllegalArgumentException("Username cannot be null or blank.");
         }
 
@@ -90,7 +90,7 @@ public class UserService implements IUserService {
         UserResponseDto responseDto = new UserResponseDto();
 
         responseDto.setId(user.getId());
-        responseDto.setUserName(user.getUsername());
+        responseDto.setUsername(user.getUsername());
         responseDto.setCreatedAt(user.getCreatedAt());
 
         return responseDto;

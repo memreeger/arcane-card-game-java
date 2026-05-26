@@ -1,5 +1,6 @@
 package abst;
 
+import dto.userDto.UserResponseDto;
 import enums.DeckType;
 
 import enums.DifficultyType;
@@ -10,11 +11,11 @@ import java.util.List;
 
 public interface IGameService {
 
-    void startGame(DeckType deckType, DifficultyType difficulty);
+    void startGame(DeckType deckType, DifficultyType difficulty, UserResponseDto user);
 
     void showCurrentHand();
 
-    boolean  discardCardAndDrawNewCard(int cardIndex);
+    boolean discardCardAndDrawNewCard(int cardIndex);
 
     void showDiscardedCards();
 
@@ -39,4 +40,6 @@ public interface IGameService {
     int getRemainingDeckCardCount();
 
     void useSpecialCard(int specialCardIndex);
+
+    UserResponseDto getCurrentUser();
 }

@@ -1,9 +1,8 @@
 package dao.userDao;
 
-import abst.daoAbst.IUserDaoWriteable;
-import abst.daoAbst.IUserDaoReadable;
+import abst.daoAbst.user.IUserDaoWriteable;
+import abst.daoAbst.user.IUserDaoReadable;
 import dao.DaoConnection;
-import dto.userDto.UserResponseDto;
 import model.user.User;
 
 import java.sql.*;

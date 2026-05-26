@@ -11,14 +11,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequestDto {
-    private String userName;
+    private String username;
     private String password;
 
     @Override
     public String toString() {
         return "UserRequestDto{" +
-                ", user name = '" + getUserName() + '\'' +
-                ", paswword = '" + getPassword() + '\'' +
+                ", user name = '" + getUsername() + '\'' +
                 '}';
     }
 }

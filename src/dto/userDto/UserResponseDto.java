@@ -15,7 +15,7 @@ public class UserResponseDto extends BaseUserDto {
     public String toString() {
         return "UserResponseDto{" +
                 "id=" + getId() +
-                ", user name = '" + getUserName() + '\'' +
+                ", user name = '" + getUsername() + '\'' +
                 ", created at " + getCreatedAt() +
                 '}';
     }

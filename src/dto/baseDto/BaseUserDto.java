@@ -11,6 +11,6 @@ import java.time.LocalDateTime;
 @ToString
 public abstract class BaseUserDto {
     private int id;
-    private String userName;
+    private String username;
     private LocalDateTime createdAt;
 }

@@ -1,6 +1,7 @@
 package services.gameService;
 
 import abst.*;
+import dto.userDto.UserResponseDto;
 import enums.DeckType;
 import enums.DifficultyType;
 import factory.DeckFactory;
@@ -24,6 +25,7 @@ public class GameService implements IGameService {
     private Hand hand;
     private DifficultyType difficulty;
     private Round currentRound;
+    private UserResponseDto currentUser;
     private int currentRoundNumber = 1;
     private int totalScore = 0;
     private boolean gameOver = false;
@@ -55,16 +57,17 @@ public class GameService implements IGameService {
 
 
     @Override
-    public void startGame(DeckType deckType, DifficultyType difficulty) {
+    public void startGame(DeckType deckType, DifficultyType difficulty, UserResponseDto user) {
+
+        this.currentUser = user;
 
         this.totalTargetScore = 0;
+        this.totalDiscardCount = 0;
         this.playerWon = false;
         this.difficulty = difficulty;
         this.currentRoundNumber = 1;
         this.totalScore = 0;
         this.gameOver = false;
-        this.totalDiscardCount = 0;
-        discardPileService.clearDiscardPile();
 
         IDeckCreator deckCreator = DeckFactory.createDeck(deckType);
 
@@ -75,6 +78,7 @@ public class GameService implements IGameService {
         this.hand = handService.createHand(deck);
 
         this.currentRound = roundService.createRound(currentRoundNumber, difficulty);
+
         totalTargetScore += currentRound.getTargetScore();
     }
 
@@ -119,8 +123,8 @@ public class GameService implements IGameService {
             gameOver = true;
 
             System.out.println("\n========= GAME OVER =========");
-            double playerAverage = totalScore / 4.0;
-            double targetAverage = totalTargetScore / 4.0;
+            double playerAverage = totalScore / (double) MAX_ROUND;
+            double targetAverage = totalTargetScore / (double) MAX_ROUND;
 
             playerWon = playerAverage >= targetAverage;
 
@@ -234,6 +238,11 @@ public class GameService implements IGameService {
     public void useSpecialCard(int specialCardIndex) {
 
         specialCardService.useSpecialCard(hand, deck, specialCardIndex);
+    }
+
+    @Override
+    public UserResponseDto getCurrentUser() {
+        return currentUser;
     }
 
 
