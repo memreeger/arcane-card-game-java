@@ -1,13 +1,17 @@
 package services.gameService;
 
 import abst.*;
+import dto.gameCardDto.GameCardResponseDto;
 import dto.gameSessionDto.GameSessionRequestDto;
 import dto.gameSessionDto.GameSessionResponseDto;
 import dto.userDto.UserResponseDto;
+import enums.CardLocation;
 import enums.DeckType;
 import enums.DifficultyType;
 import factory.DeckFactory;
 import model.card.Card;
+import model.card.NumberCard;
+import model.card.SpecialCard;
 import model.deck.Deck;
 import model.hand.Hand;
 import model.round.Round;
@@ -21,6 +25,7 @@ import services.roundService.RoundService;
 import services.scoreService.ScoreService;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameService implements IGameService {
@@ -308,6 +313,103 @@ public class GameService implements IGameService {
     @Override
     public UserResponseDto getCurrentUser() {
         return currentUser;
+    }
+
+    @Override
+    public void loadGame(int gameSessionId, UserResponseDto user) {
+
+        this.currentUser = user;
+
+        currentGameSession =
+                gameSessionService.getGameSessionById(gameSessionId);
+
+        if (currentGameSession == null) {
+            throw new IllegalArgumentException("Game session not found.");
+        }
+
+        this.currentRoundNumber = currentGameSession.getCurrentRoundNumber();
+        this.totalScore = currentGameSession.getTotalScore();
+        this.totalTargetScore = currentGameSession.getTotalTargetScore();
+        this.totalDiscardCount = currentGameSession.getTotalDiscardCount();
+        this.gameOver = currentGameSession.isGameOver();
+        this.playerWon = currentGameSession.isPlayerWon();
+        this.difficulty = currentGameSession.getDifficulty();
+
+        this.currentRound =
+                roundService.createRound(
+                        currentRoundNumber,
+                        difficulty
+                );
+
+        List<GameCardResponseDto> deckCards =
+                gameCardService.getCardsByLocation(
+                        gameSessionId,
+                        CardLocation.DECK
+                );
+
+        List<GameCardResponseDto> handCards =
+                gameCardService.getCardsByLocation(
+                        gameSessionId,
+                        CardLocation.HAND
+                );
+
+        List<GameCardResponseDto> discardCards =
+                gameCardService.getCardsByLocation(
+                        gameSessionId,
+                        CardLocation.DISCARD
+                );
+
+        this.deck = new Deck(
+                currentGameSession.getDeckType(),
+                convertDtoListToCards(deckCards)
+        );
+
+        this.hand = new Hand(
+                convertDtoListToCards(handCards)
+        );
+
+        discardPileService.clearDiscardPile();
+
+        for (Card card : convertDtoListToCards(discardCards)) {
+            discardPileService.addCardByCard(card);
+        }
+    }
+
+    private List<Card> convertDtoListToCards(List<GameCardResponseDto> dtoList) {
+
+        List<Card> cards = new ArrayList<>();
+
+        for (GameCardResponseDto dto : dtoList) {
+
+            if (dto.getSpecialCardType() != null) {
+
+                SpecialCard specialCard =
+                        new SpecialCard(
+                                dto.getDeckType(),
+                                dto.getSpecialCardType()
+                        );
+
+                specialCard.setId(dto.getCardId());
+                specialCard.setUsed(dto.isUsed());
+
+                cards.add(specialCard);
+
+            } else {
+
+                NumberCard numberCard =
+                        new NumberCard(
+                                dto.getCardValue().byteValue(),
+                                dto.getCardType(),
+                                dto.getDeckType()
+                        );
+
+                numberCard.setId(dto.getCardId());
+
+                cards.add(numberCard);
+            }
+        }
+
+        return cards;
     }
 
 

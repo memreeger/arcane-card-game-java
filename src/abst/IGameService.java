@@ -43,4 +43,5 @@ public interface IGameService {
 
     UserResponseDto getCurrentUser();
 
+    void loadGame(int gameSessionId, UserResponseDto user);
 }

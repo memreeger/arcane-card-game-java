@@ -481,10 +481,66 @@ public static void main(String[] args) {
 
         UserResponseDto currentUser = authenticateUser(input, userService);
 
-        DeckType deckType = selectDeckType(input);
-        DifficultyType difficulty = selectDifficulty(input);
+        System.out.println("\n========= GAME MENU =========");
+        System.out.println("1 - New Game");
+        System.out.println("2 - Continue Previous Game");
+        System.out.print("Choice: ");
 
-        gameService.startGame(deckType, difficulty, currentUser);
+        int gameMenuChoice = input.nextInt();
+
+        if (gameMenuChoice == 2) {
+
+            IGameSessionService gameSessionService =
+                    GameSessionService.getInstance();
+
+            List<GameSessionResponseDto> sessions =
+                    gameSessionService.getGameSessionsByUserId(
+                            currentUser.getId()
+                    );
+
+            if (sessions.isEmpty()) {
+
+                System.out.println("No saved games found.");
+                return;
+            }
+
+            System.out.println("\n========= SAVED GAMES =========");
+
+            for (GameSessionResponseDto session : sessions) {
+
+                System.out.println(
+                        "Session ID: " + session.getId()
+                                + " | Round: " + session.getCurrentRoundNumber()
+                                + " | Total Score: " + session.getTotalScore()
+                                + " | Finished: " + session.isGameOver()
+                );
+            }
+
+            System.out.print("\nEnter session id to continue: ");
+
+            int sessionId = input.nextInt();
+
+            gameService.loadGame(sessionId, currentUser);
+
+            System.out.println("Previous game loaded.");
+
+        } else {
+
+            DeckType deckType = selectDeckType(input);
+
+            DifficultyType difficulty =
+                    selectDifficulty(input);
+
+            gameService.startGame(
+                    deckType,
+                    difficulty,
+                    currentUser
+            );
+        }
+        //DeckType deckType = selectDeckType(input);
+        //DifficultyType difficulty = selectDifficulty(input);
+
+        //gameService.startGame(deckType, difficulty, currentUser);
 
         while (!gameService.isGameOver()) {
 
@@ -610,9 +666,7 @@ public static void main(String[] args) {
                 }
 
                 System.out.println("Register failed.");
-            }
-
-            else if (choice == 2) {
+            } else if (choice == 2) {
                 UserResponseDto user = userService.login(requestDto);
 
                 if (user != null) {
@@ -621,13 +675,13 @@ public static void main(String[] args) {
                 }
 
                 System.out.println("Invalid username or password.");
-            }
-
-            else {
+            } else {
                 System.out.println("Invalid choice.");
             }
         }
+
     }
+
 
     private static DeckType selectDeckType(Scanner input) {
 
